@@ -1,7 +1,10 @@
 #initializing Gemini model api
+import os
+from dotenv import load_dotenv
+load_dotenv()
 import google.generativeai as genai
 import PIL.Image
-genai.configure(api_key="AIzaSyCSrdHqh7wkS7TiOhA8NebxDFiQO41gCJ4")
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY", ""))
 gemini_model = genai.GenerativeModel("gemini-2.0-flash-exp")
 print("Gemini Model Loaded")
 
