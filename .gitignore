@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+*.npy
+.env
+*.log
+venv/
+env/
+.venv/
+*.bin
+*.safetensors
+*.h5
+*.onnx
+ItineraryApp/static/features/
+ItineraryApp/static/location_images/
