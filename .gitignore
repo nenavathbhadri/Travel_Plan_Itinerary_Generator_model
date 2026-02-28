@@ -14,3 +14,9 @@ env/
 *.onnx
 ItineraryApp/static/features/
 ItineraryApp/static/location_images/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Windows
+Thumbs.db
