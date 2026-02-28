@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Admin Login — TravelMind{% endblock %}
+
+{% block nav_items %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li><a href="{% url 'UserLogin' %}">User Login</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-visual-panel">
+        <div class="auth-visual-content">
+            <div class="auth-visual-icon">🛡️</div>
+            <h2>Admin Panel</h2>
+            <p>Manage users, monitor trips, and oversee platform analytics.</p>
+        </div>
+    </div>
+
+    <div class="auth-form-panel">
+        <div class="auth-form-container page-enter">
+            <h2>Admin Login</h2>
+            <p class="auth-subtitle">Sign in with your admin credentials.</p>
+
+            {% if data %}
+            <div class="auth-message error">
+                {{ data }}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'AdminLoginAction' %}" data-validate="true">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="admin-username">Admin Username</label>
+                    <div class="form-input-wrapper">
+                        <span class="form-icon">🛡️</span>
+                        <input type="text" id="admin-username" name="t1" class="form-input has-icon"
+                            placeholder="Enter admin username" required data-label="admin username">
+                        <span class="form-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="admin-password">Password</label>
+                    <div class="form-input-wrapper">
+                        <span class="form-icon">🔒</span>
+                        <input type="password" id="admin-password" name="t2" class="form-input has-icon"
+                            placeholder="Enter admin password" required data-label="password">
+                        <span class="form-error"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                    <span class="btn-text">🛡️ Admin Sign In</span>
+                    <span class="spinner"></span>
+                </button>
+            </form>
+
+            <p class="auth-switch" style="margin-top: var(--space-xl);">
+                <a href="{% url 'index' %}">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,89 +1,321 @@
+{% extends "base.html" %}
+
 {% load static %}
-<html>
-<head>
-<title>Travel Plan Itinerary Generator</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
-<script language="javascript">
-	function validate(formObj)
-	{
-	if(formObj.t1.value.length==0)
-	{
-	alert("Please Enter source name");
-	formObj.t1.focus();
-	return false;
-	}
-	if(formObj.t2.value.length==0)
-	{
-	alert("Please Enter destination name");
-	formObj.t2.focus();
-	return false;
-	}
 
-	if(formObj.t3.value.length==0)
-	{
-	alert("Please Enter Budget");
-	formObj.t3.focus();
-	return false;
-	}
-	if(formObj.t4.value.length==0)
-	{
-	alert("Please Enter travel description");
-	formObj.t4.focus();
-	return false;
-	}
-	formObj.actionUpdateData.value="update";
-	return true;
-	}
-	</script>	
-</head>
-<style>
-body {
-  background-image: url("{% static 'images/back.jpg' %}");
-}
-</style>
-<body>
-<div class="main">
-  <div class="main_resize">
-    <div class="header">
-      <div class="logo">
-        <h1><span>Travel Plan Itinerary Generator</span><small></small></h1>
-      </div>
-    </div>
-    <div class="content">
-      <div class="content_bg">
-        <div class="menu_nav">
-         <ul>      
-     <li><a href="{% url 'TravelPlan' %}"><font size="3" color="black">Generate Travel Plan</a></li>
-	 <li><a href="{% url 'index' %}"><font size="3" color="black">Logout</a></li>
-   </ul>     
-        </div>
-        <div class="hbg"><img src="{% static 'images/header_images.jpg' %}" width="915" height="286" alt="" /></div>
-      				<center>
-<form name="f1" method="post" action={% url 'TravelPlanAction' %} onsubmit="return validate(this);">
-{% csrf_token %}<br/>
-   <h2><b>Travel Plan Screen</b></h2>
-   
-	<font size="" color="red"><center>{{ data }}</center></font>
-						
-						<table align="center" width="30%" >
-			 <tr><td><font size='' color="black"><b>Source</b></td>
-			 <td><input type="text" name="t1" style="font-family: Comic Sans MS" size="25"></td></tr>
-         
-		  <tr><td><font size='' color="black"><b>Destination</b></td><td><input name="t2" type="text"  style="font-family: Comic Sans MS" size="25"></td></tr>
+{% block title %}Plan Your Trip — TravelMind{% endblock %}
 
-		  <tr><td><font size='' color="black"><b>Budget</b></td>
-			 <td><input type="number" name="t3" style="font-family: Comic Sans MS" size="15"></td></tr>
+{% block nav_items %}
+<li><a href="{% url 'TravelPlan' %}" class="active">Plan a Trip</a></li>
+<li><a href="{% url 'TripHistory' %}">My Trips</a></li>
+<li><a href="{% url 'index' %}">Logout</a></li>
+{% endblock %}
 
-			 <tr><td><font size='' color="black"><b>Description</b></td>
-			 <td><input type="text" name="t4" style="font-family: Comic Sans MS" size="60"></td></tr>
+{% block content %}
+<!-- Destination Preview Section -->
+<section class="dest-section">
+	<div class="container">
+		<div class="section-header animate-on-scroll">
+			<span class="badge">🌍 Explore Destinations</span>
+			<h2>Where Do You Want<br><span class="text-gradient">To Go?</span></h2>
+			<p>Click on a destination to auto-fill your trip details, or scroll down to enter custom details.</p>
+		</div>
 
-			<tr><td></td><td><input type="submit" value="Submit"></td>
-			</table>
-				</div>	
-					
+		<div class="dest-grid">
+			<!-- Paris -->
+			<div class="dest-card animate-on-scroll stagger-1" data-dest="Paris" data-country="France"
+				data-budget="2500">
+				<img src="{% static 'destinations/paris.png' %}" alt="Paris, France" loading="lazy">
+				<div class="dest-select-badge">✓</div>
+				<div class="dest-overlay">
+					<span class="dest-country">France</span>
+					<h3 class="dest-name">Paris</h3>
+					<p class="dest-desc">City of love, art & gastronomy. Explore the Eiffel Tower, Louvre Museum, and
+						charming cafés.</p>
+					<div class="dest-meta">
+						<span class="dest-rating">⭐ 4.8</span>
+						<span class="dest-tag">Romantic</span>
+						<span class="dest-price">From $2,500</span>
+					</div>
 				</div>
-				
-					
-	</body>
-</html>
+			</div>
+
+			<!-- Tokyo -->
+			<div class="dest-card animate-on-scroll stagger-2" data-dest="Tokyo" data-country="Japan"
+				data-budget="3000">
+				<img src="{% static 'destinations/tokyo.png' %}" alt="Tokyo, Japan" loading="lazy">
+				<div class="dest-select-badge">✓</div>
+				<div class="dest-overlay">
+					<span class="dest-country">Japan</span>
+					<h3 class="dest-name">Tokyo</h3>
+					<p class="dest-desc">Where ancient temples meet neon-lit streets. Sushi, anime, and cutting-edge
+						technology await.</p>
+					<div class="dest-meta">
+						<span class="dest-rating">⭐ 4.9</span>
+						<span class="dest-tag">Culture</span>
+						<span class="dest-price">From $3,000</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Bali -->
+			<div class="dest-card animate-on-scroll stagger-3" data-dest="Bali" data-country="Indonesia"
+				data-budget="1500">
+				<img src="{% static 'destinations/bali.png' %}" alt="Bali, Indonesia" loading="lazy">
+				<div class="dest-select-badge">✓</div>
+				<div class="dest-overlay">
+					<span class="dest-country">Indonesia</span>
+					<h3 class="dest-name">Bali</h3>
+					<p class="dest-desc">Tropical paradise with rice terraces, sacred temples, and world-class surfing
+						beaches.</p>
+					<div class="dest-meta">
+						<span class="dest-rating">⭐ 4.7</span>
+						<span class="dest-tag">Tropical</span>
+						<span class="dest-price">From $1,500</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Dubai -->
+			<div class="dest-card animate-on-scroll stagger-1" data-dest="Dubai" data-country="UAE" data-budget="3500">
+				<img src="{% static 'destinations/dubai.png' %}" alt="Dubai, UAE" loading="lazy">
+				<div class="dest-select-badge">✓</div>
+				<div class="dest-overlay">
+					<span class="dest-country">United Arab Emirates</span>
+					<h3 class="dest-name">Dubai</h3>
+					<p class="dest-desc">Futuristic skyline, luxury shopping, desert safaris, and record-breaking
+						architecture.</p>
+					<div class="dest-meta">
+						<span class="dest-rating">⭐ 4.6</span>
+						<span class="dest-tag">Luxury</span>
+						<span class="dest-price">From $3,500</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- New York -->
+			<div class="dest-card animate-on-scroll stagger-2" data-dest="New York" data-country="USA"
+				data-budget="2800">
+				<img src="{% static 'destinations/newyork.png' %}" alt="New York, USA" loading="lazy">
+				<div class="dest-select-badge">✓</div>
+				<div class="dest-overlay">
+					<span class="dest-country">United States</span>
+					<h3 class="dest-name">New York</h3>
+					<p class="dest-desc">The city that never sleeps. Broadway, Central Park, Times Square, and iconic
+						skyline views.</p>
+					<div class="dest-meta">
+						<span class="dest-rating">⭐ 4.7</span>
+						<span class="dest-tag">Urban</span>
+						<span class="dest-price">From $2,800</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Manali -->
+			<div class="dest-card animate-on-scroll stagger-3" data-dest="Manali" data-country="India"
+				data-budget="800">
+				<img src="{% static 'destinations/manali.png' %}" alt="Manali, India" loading="lazy">
+				<div class="dest-select-badge">✓</div>
+				<div class="dest-overlay">
+					<span class="dest-country">India</span>
+					<h3 class="dest-name">Manali</h3>
+					<p class="dest-desc">Himalayan mountain paradise with snow peaks, river rafting, and serene valley
+						views.</p>
+					<div class="dest-meta">
+						<span class="dest-rating">⭐ 4.5</span>
+						<span class="dest-tag">Adventure</span>
+						<span class="dest-price">From $800</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="scroll-indicator animate-on-scroll">
+			<span>Or enter custom trip details below</span>
+			<span class="arrow-bounce">↓</span>
+		</div>
+	</div>
+</section>
+
+<!-- Trip Planner Form Section -->
+<section class="planner-page" id="plannerForm" style="padding-top: var(--space-2xl);">
+	<div class="container">
+		<div class="card planner-card page-enter">
+			<!-- Header -->
+			<div style="text-align: center; margin-bottom: var(--space-2xl);">
+				<div class="card-icon"
+					style="margin: 0 auto var(--space-md); background: linear-gradient(135deg, var(--primary-500), var(--primary-700)); color: white;">
+					🗺️
+				</div>
+				<h2>Plan Your Trip</h2>
+				<p class="planner-subtitle">Fill in your travel details and let our AI craft the perfect itinerary for
+					you.</p>
+			</div>
+
+			<!-- Selected destination banner (hidden until a dest is clicked) -->
+			<div id="selectedDestBanner" class="auth-message success"
+				style="display: none; margin-bottom: var(--space-lg);">
+				<span id="selectedDestText"></span>
+				<button type="button" onclick="clearDestSelection()"
+					style="background:none; border:none; cursor:pointer; font-size:1rem; margin-left: 8px; color: var(--error-color);"
+					title="Clear selection">✕</button>
+			</div>
+
+			{% if data and data != 'None' %}
+			<div class="auth-message error" style="margin-bottom: var(--space-lg);">
+				{{ data }}
+			</div>
+			{% endif %}
+
+			<form name="f1" method="post" action="{% url 'TravelPlanAction' %}" data-validate="true"
+				data-loading-message="✨ Our AI is crafting your perfect itinerary... This may take a moment.">
+				{% csrf_token %}
+
+				<div class="form-row page-enter page-enter-delay-1">
+					<div class="form-group">
+						<label class="form-label" for="trip-source">From (Source)</label>
+						<div class="form-input-wrapper">
+							<span class="form-icon">🛫</span>
+							<input type="text" id="trip-source" name="t1" class="form-input has-icon"
+								placeholder="e.g. New York, Mumbai" required data-label="the source city">
+							<span class="form-error"></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="form-label" for="trip-destination">To (Destination)</label>
+						<div class="form-input-wrapper">
+							<span class="form-icon">🛬</span>
+							<input type="text" id="trip-destination" name="t2" class="form-input has-icon"
+								placeholder="e.g. Paris, Tokyo" required data-label="the destination">
+							<span class="form-error"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group page-enter page-enter-delay-2">
+					<label class="form-label" for="trip-budget">Budget (USD)</label>
+					<div class="form-input-wrapper">
+						<span class="form-icon">💰</span>
+						<input type="number" id="trip-budget" name="t3" class="form-input has-icon"
+							placeholder="e.g. 2000" min="100" required data-label="your budget">
+						<span class="form-error"></span>
+					</div>
+				</div>
+
+				<div class="form-group page-enter page-enter-delay-3">
+					<label class="form-label" for="trip-desc">Travel Preferences</label>
+					<div class="form-input-wrapper">
+						<textarea id="trip-desc" name="t4" class="form-input" rows="4"
+							placeholder="Tell us what you're looking for... e.g. 'We love historical sites, local food experiences, and outdoor adventures. Prefer boutique hotels over big chains.'"
+							required data-label="travel preferences"></textarea>
+						<span class="form-error"></span>
+					</div>
+				</div>
+
+				<!-- Quick preference tags -->
+				<div class="page-enter page-enter-delay-3" style="margin-bottom: var(--space-xl);">
+					<label class="form-label">Quick Tags (click to add)</label>
+					<div style="display: flex; flex-wrap: wrap; gap: var(--space-sm);" id="tagContainer">
+						<button type="button" class="btn btn-secondary btn-sm preference-tag"
+							data-tag="Historical Sites">🏛️ Historical</button>
+						<button type="button" class="btn btn-secondary btn-sm preference-tag" data-tag="Local Food">🍜
+							Local Food</button>
+						<button type="button" class="btn btn-secondary btn-sm preference-tag"
+							data-tag="Adventure Sports">🏄 Adventure</button>
+						<button type="button" class="btn btn-secondary btn-sm preference-tag"
+							data-tag="Cultural Experiences">🎭 Cultural</button>
+						<button type="button" class="btn btn-secondary btn-sm preference-tag"
+							data-tag="Beach & Relaxation">🏖️ Beach</button>
+						<button type="button" class="btn btn-secondary btn-sm preference-tag"
+							data-tag="Nature & Wildlife">🌿 Nature</button>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-lg page-enter page-enter-delay-4" style="width: 100%;">
+					<span class="btn-text">✨ Generate My Itinerary</span>
+					<span class="spinner"></span>
+				</button>
+			</form>
+		</div>
+	</div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+	// ===========================
+	// DESTINATION CARD SELECTION
+	// ===========================
+	const destCards = document.querySelectorAll('.dest-card');
+	const destInput = document.getElementById('trip-destination');
+	const budgetInput = document.getElementById('trip-budget');
+	const selectedBanner = document.getElementById('selectedDestBanner');
+	const selectedText = document.getElementById('selectedDestText');
+
+	destCards.forEach(card => {
+		card.addEventListener('click', function () {
+			const dest = this.dataset.dest;
+			const country = this.dataset.country;
+			const budget = this.dataset.budget;
+
+			// Remove 'selected' from all cards
+			destCards.forEach(c => c.classList.remove('selected'));
+
+			// Select this card
+			this.classList.add('selected');
+
+			// Auto-fill form inputs
+			destInput.value = dest;
+			budgetInput.value = budget;
+
+			// Show selected destination banner
+			selectedBanner.style.display = 'flex';
+			selectedBanner.style.alignItems = 'center';
+			selectedBanner.style.justifyContent = 'center';
+			selectedText.textContent = '✅ Selected: ' + dest + ', ' + country + ' — Budget: $' + budget;
+
+			// Smooth scroll to the form
+			document.getElementById('plannerForm').scrollIntoView({
+				behavior: 'smooth',
+				block: 'start'
+			});
+
+			// Flash the destination input
+			destInput.style.borderColor = 'var(--primary-500)';
+			destInput.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.2)';
+			setTimeout(() => {
+				destInput.style.borderColor = '';
+				destInput.style.boxShadow = '';
+			}, 2000);
+		});
+	});
+
+	function clearDestSelection() {
+		destCards.forEach(c => c.classList.remove('selected'));
+		destInput.value = '';
+		budgetInput.value = '';
+		selectedBanner.style.display = 'none';
+	}
+
+	// ===========================
+	// PREFERENCE TAG CLICK
+	// ===========================
+	document.querySelectorAll('.preference-tag').forEach(tag => {
+		tag.addEventListener('click', function () {
+			const textarea = document.getElementById('trip-desc');
+			const tagText = this.dataset.tag;
+			const currentVal = textarea.value.trim();
+
+			if (currentVal.includes(tagText)) {
+				textarea.value = currentVal.replace(tagText, '').replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '').trim();
+				this.classList.remove('btn-primary');
+				this.classList.add('btn-secondary');
+			} else {
+				textarea.value = currentVal ? currentVal + ', ' + tagText : tagText;
+				this.classList.add('btn-primary');
+				this.classList.remove('btn-secondary');
+			}
+		});
+	});
+</script>
+{% endblock %}

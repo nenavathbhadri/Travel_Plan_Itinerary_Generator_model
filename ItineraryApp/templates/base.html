@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-Powered Travel Plan Itinerary Generator — Create personalized travel plans with smart recommendations, budget optimization, and detailed itineraries.">
+  <title>{% block title %}TravelMind — AI Travel Planner{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'animations.css' %}">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  {% block navbar %}
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="{% url 'index' %}" class="nav-brand">
+        <span class="brand-icon">✈</span>
+        TravelMind
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        {% block nav_items %}
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'UserLogin' %}">Login</a></li>
+        <li><a href="{% url 'Register' %}">Sign Up</a></li>
+        {% endblock %}
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="icon-moon">🌙</span>
+          <span class="icon-sun">☀️</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu" aria-expanded="false">☰</button>
+      </div>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <!-- Main Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="brand-icon">✈</span>
+          TravelMind
+        </div>
+        <ul class="footer-links">
+          <li><a href="{% url 'index' %}">Home</a></li>
+          <li><a href="{% url 'UserLogin' %}">Login</a></li>
+          <li><a href="{% url 'Register' %}">Sign Up</a></li>
+        </ul>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 TravelMind. AI-Powered Travel Planning. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-lg"></div>
+    <p>Generating your perfect itinerary...</p>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{% static 'app.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

@@ -1,40 +1,110 @@
+{% extends "base.html" %}
+
 {% load static %}
-<html>
-<head>
-<title>Travel Plan Itinerary Generator</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
-</head>
-<style>
-body {
-  background-image: url("{% static 'images/back.jpg' %}");
-}
-</style>
-<body>
-<div class="main">
-  <div class="main_resize">
-    <div class="header">
-      <div class="logo">
-        <h1 align="center"><span>Travel Plan Itinerary Generator</span><small></small></h1>
+
+{% block title %}TravelMind — AI-Powered Travel Planning{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero animated-gradient">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+
+  <div class="hero-content">
+    <h1 class="hero-animate-title">
+      Plan Your Dream Trip<br>with <span style="font-family: var(--font-display);">AI Intelligence</span>
+    </h1>
+    <p class="subtitle hero-animate-subtitle">
+      Generate personalized travel itineraries powered by AI. Smart recommendations, budget optimization, and detailed
+      day-by-day plans — all in seconds.
+    </p>
+    <div class="hero-actions hero-animate-actions">
+      <a href="{% url 'Register' %}" class="btn btn-primary btn-lg">
+        Get Started Free →
+      </a>
+      <a href="{% url 'UserLogin' %}" class="btn btn-outline btn-lg">
+        Sign In
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="section" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <span class="badge">✨ Why TravelMind</span>
+      <h2>Everything You Need for the<br><span class="text-gradient">Perfect Trip</span></h2>
+      <p>Our AI analyzes thousands of data points to create your ideal travel experience.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="card feature-card card-hover-lift animate-on-scroll stagger-1">
+        <div class="card-icon">🤖</div>
+        <h3>AI-Powered Plans</h3>
+        <p>Advanced language models analyze your preferences to craft personalized itineraries with hotels, flights, and
+          activities.</p>
+      </div>
+
+      <div class="card feature-card card-hover-lift animate-on-scroll stagger-2">
+        <div class="card-icon">💰</div>
+        <h3>Budget Optimized</h3>
+        <p>Set your budget and let our AI find the best value options. Get detailed cost breakdowns for every part of
+          your trip.</p>
+      </div>
+
+      <div class="card feature-card card-hover-lift animate-on-scroll stagger-3">
+        <div class="card-icon">🗺️</div>
+        <h3>Smart Destinations</h3>
+        <p>Discover hidden gems and must-visit attractions. Our AI learns from millions of traveler experiences
+          worldwide.</p>
       </div>
     </div>
-    <div class="content">
-      <div class="content_bg">
-        <div class="menu_nav">
-         
-           <ul>
-      <li><a href="{% url 'index' %}"><font size="3" color="black">Home</a></li>
-      <li><a href="{% url 'UserLogin' %}"><font size="3" color="black">User Login</a></li>
-	  <li><a href="{% url 'Register' %}"><font size="3" color="black">New User Signup Page</a></li>
-   </ul>
-         
-        </div>
-        <div class="hbg"><img src="{% static 'images/header_images.jpg' %}" width="915" height="286" alt="" /></div>
+  </div>
+</section>
 
-		       <p align="justify"><font size="3" style="font-family: Comic Sans MS" color="black">Travel Plan Itinerary Generator
-</p>
- 
- <font size="3" color="black"><center>{{ data|safe }}</center></font><br/>
-		<img src="data:image/png;base64, {{ img }}" alt="" />
-  </body>
-</html>
+<!-- How It Works Section -->
+<section class="section">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <span class="badge">🚀 How It Works</span>
+      <h2>Your Perfect Trip in<br><span class="text-gradient">3 Simple Steps</span></h2>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card animate-on-scroll stagger-1">
+        <div class="step-number">1</div>
+        <h3>Enter Details</h3>
+        <p>Tell us your source, destination, budget, and what kind of experiences you're looking for.</p>
+      </div>
+
+      <div class="step-card animate-on-scroll stagger-2">
+        <div class="step-number">2</div>
+        <h3>AI Generates</h3>
+        <p>Our AI engine creates a comprehensive itinerary with accommodations, transport, and activities.</p>
+      </div>
+
+      <div class="step-card animate-on-scroll stagger-3">
+        <div class="step-number">3</div>
+        <h3>Explore & Plan</h3>
+        <p>Review your personalized plan, view destination images, and start your adventure!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="cta-section animate-on-scroll animated-gradient">
+      <h2>Ready to Plan Your Next Adventure?</h2>
+      <p>Join thousands of travelers who trust TravelMind for smart trip planning.</p>
+      <a href="{% url 'Register' %}" class="btn btn-primary btn-lg btn-pulse"
+        style="background: white; color: var(--primary-700);">
+        Create Free Account →
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

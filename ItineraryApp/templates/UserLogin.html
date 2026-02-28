@@ -1,71 +1,85 @@
-{% load static %}
-<html>
-<head>
-<title>Travel Plan Itinerary Generator</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
-<script language="javascript">
-	function validate(formObj)
-	{
-	if(formObj.t1.value.length==0)
-	{
-	alert("Please Enter Username");
-	formObj.t1.focus();
-	return false;
-	}
-	if(formObj.t2.value.length==0)
-	{
-	alert("Please Enter Password");
-	formObj.t2.focus();
-	return false;
-	}
-	formObj.actionUpdateData.value="update";
-	return true;
-	}
-	</script>	
-</head>
-<style>
-body {
-  background-image: url("{% static 'images/back.jpg' %}");
-}
-</style>
-<body>
-<div class="main">
-  <div class="main_resize">
-    <div class="header">
-      <div class="logo">
-        <h1><span>Travel Plan Itinerary Generator</span><small></small></h1>
-      </div>
-    </div>
-    <div class="content">
-      <div class="content_bg">
-        <div class="menu_nav">
-         <ul>
-      <li><a href="{% url 'index' %}"><font size="3" color="black">Home</a></li>
-      <li><a href="{% url 'UserLogin' %}"><font size="3" color="black">User Login</a></li>
-	  <li><a href="{% url 'Register' %}"><font size="3" color="black">New User Signup Page</a></li>
-   </ul>
-        </div>
-        <div class="hbg"><img src="{% static 'images/header_images.jpg' %}" width="915" height="286" alt="" /></div>
-      				<center>
-<form name="f1" method="post" action={% url 'UserLoginAction' %} onsubmit="return validate(this);">
-{% csrf_token %}<br/>
-   <h2><b>User Login Screen</b></h2>
-   
-	<font size="" color="red"><center>{{ data }}</center></font>
-						
-						<table align="center" width="30%" >
-			 <tr><td><font size='' color="black"><b>Username</b></td>
-			 <td><input type="text" name="t1" style="font-family: Comic Sans MS" size="25"></td></tr>
-         
-		  <tr><td><font size='' color="black"><b>Password</b></td><td><input name="t2" type="password"  style="font-family: Comic Sans MS" size="25"></td></tr>
+{% extends "base.html" %}
 
-			<tr><td></td><td><input type="submit" value="Login"></td>
-			</table>
-				</div>	
-					
+{% load static %}
+
+{% block title %}Login — TravelMind{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+	<!-- Left Visual Panel -->
+	<div class="auth-visual animated-gradient">
+		<span class="auth-decor auth-decor-1">✈️</span>
+		<span class="auth-decor auth-decor-2">🌍</span>
+		<span class="auth-decor auth-decor-3">🏔️</span>
+		<div class="auth-visual-content">
+			<h2 class="hero-animate-title">Welcome Back,<br>Explorer!</h2>
+			<p class="hero-animate-subtitle">Sign in to access your personalized travel plans and continue planning your
+				next adventure.</p>
+		</div>
+		<div class="hero-orb hero-orb-1"></div>
+		<div class="hero-orb hero-orb-2"></div>
+	</div>
+
+	<!-- Right Form Panel -->
+	<div class="auth-form-side">
+		<div class="auth-form-container page-enter">
+			<a href="{% url 'index' %}" class="nav-brand"
+				style="margin-bottom: var(--space-2xl); display: inline-flex;">
+				<span class="brand-icon">✈</span>
+				TravelMind
+			</a>
+
+			<h2>Sign In</h2>
+			<p class="auth-subtitle">Enter your credentials to access your travel dashboard.</p>
+
+			{% if data and data != 'None' %}
+			<div class="auth-message error page-enter page-enter-delay-1">
+				{{ data }}
+			</div>
+			{% endif %}
+
+			<form name="f1" method="post" action="{% url 'UserLoginAction' %}" data-validate="true"
+				data-loading-message="Signing you in...">
+				{% csrf_token %}
+
+				<div class="form-group page-enter page-enter-delay-1">
+					<label class="form-label" for="login-username">Username</label>
+					<div class="form-input-wrapper">
+						<span class="form-icon">👤</span>
+						<input type="text" id="login-username" name="t1" class="form-input has-icon"
+							placeholder="Enter your username" required data-label="your username">
+						<span class="form-error"></span>
+					</div>
 				</div>
-				
-					
-	</body>
-</html>
+
+				<div class="form-group page-enter page-enter-delay-2">
+					<label class="form-label" for="login-password">Password</label>
+					<div class="form-input-wrapper">
+						<span class="form-icon">🔒</span>
+						<input type="password" id="login-password" name="t2" class="form-input has-icon"
+							placeholder="Enter your password" required data-label="your password">
+						<span class="form-error"></span>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-lg page-enter page-enter-delay-3"
+					style="width: 100%; margin-top: var(--space-md);">
+					<span class="btn-text">Sign In</span>
+					<span class="spinner"></span>
+				</button>
+			</form>
+
+			<div class="auth-switch page-enter page-enter-delay-4">
+				Don't have an account? <a href="{% url 'Register' %}">Create one free</a>
+			</div>
+
+			<div style="text-align: center; margin-top: var(--space-md);" class="page-enter page-enter-delay-4">
+				<a href="{% url 'index' %}" class="btn btn-ghost btn-sm">← Back to Home</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

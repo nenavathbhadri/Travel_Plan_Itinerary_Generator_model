@@ -1,0 +1,440 @@
+=====================================================================
+   TravelMind - AI-Powered Travel Plan Itinerary Generator
+   Complete Technology Stack Documentation
+=====================================================================
+
+
+=====================================================================
+1. BACKEND TECHNOLOGIES
+=====================================================================
+
+1.1 Python 3.13
+-----------------
+What    : Python is a high-level, general-purpose programming language.
+How Used: It is the core programming language of this entire project.
+          All backend logic, database operations, API calls, AI model
+          inference, and server-side processing are written in Python.
+Where   : Every backend file — views.py, urls.py, settings.py, __init__.py
+
+
+1.2 Django 6.0 (Web Framework)
+-------------------------------
+What    : Django is a high-level Python web framework that follows the
+          MVT (Model-View-Template) architectural pattern. It handles
+          URL routing, request/response processing, template rendering,
+          session management, and security (CSRF protection).
+How Used: Django serves as the backbone of the web application.
+          - URL Routing: Maps URLs to view functions (urls.py)
+          - Views: Handles business logic for each page (views.py)
+          - Templates: Renders HTML pages with dynamic data
+          - Sessions: Manages user login state (request.session)
+          - CSRF: Protects forms from cross-site request forgery
+Where   : 
+          - Itinerary/settings.py    → Project configuration
+          - Itinerary/urls.py        → Root URL configuration
+          - ItineraryApp/urls.py     → App-level URL routing
+          - ItineraryApp/views.py    → All view functions
+          - ItineraryApp/templates/  → All HTML templates
+
+
+1.3 MySQL (Database)
+---------------------
+What    : MySQL is an open-source relational database management system.
+          It stores data in structured tables with rows and columns.
+How Used: MySQL replaced SQLite as the primary database. It stores:
+          - User registration data (username, hashed password, email, etc.)
+          - Trip history (source, destination, budget, itinerary text)
+          - Admin credentials (username, hashed password)
+          All database operations use SQL queries via PyMySQL.
+Where   :
+          - Database name: "itinerary"
+          - Table "register"     → User accounts
+          - Table "trip_history"  → Saved itineraries per user
+          - Table "admin_users"   → Admin login credentials
+          - Configured in: .env file (MYSQL_HOST, MYSQL_USER, etc.)
+
+
+1.4 PyMySQL (MySQL Connector)
+------------------------------
+What    : PyMySQL is a pure-Python MySQL client library. It allows
+          Python code to connect to and interact with MySQL databases.
+How Used: PyMySQL establishes connections to the MySQL server and
+          executes SQL queries (SELECT, INSERT, DELETE, CREATE TABLE).
+          It uses DictCursor so query results are returned as
+          dictionaries for easy access (e.g., row['username']).
+Where   :
+          - Itinerary/__init__.py  → Registers PyMySQL as MySQLdb
+          - ItineraryApp/views.py  → get_db_connection() function
+            Used in: UserLoginAction, RegisterAction, TravelPlanAction,
+            TripHistory, AdminLoginAction, AdminDashboard, AdminDeleteUser
+
+
+1.5 Groq API + LLaMA 3.3 70B (AI Engine)
+------------------------------------------
+What    : Groq is a cloud AI inference platform. LLaMA 3.3 70B is a
+          large language model (LLM) by Meta with 70 billion parameters.
+          Groq provides ultra-fast inference for this model via API.
+How Used: When a user submits trip details (source, destination, budget,
+          preferences), the app sends a structured prompt to the Groq API.
+          The LLM generates a detailed day-by-day travel itinerary
+          including activities, costs, food recommendations, and tips.
+Where   :
+          - ItineraryApp/views.py → TravelPlanAction() function
+          - API key stored in: .env file (GROQ_API_KEY)
+          - Model used: "llama-3.3-70b-versatile"
+
+
+1.6 Google Gemini API (Fallback AI)
+------------------------------------
+What    : Google Gemini is Google's generative AI model for text,
+          image, and multimodal content generation.
+How Used: Acts as a fallback content generation engine. If the Groq
+          API fails or is unavailable, Gemini can be used to generate
+          itineraries as an alternative.
+Where   :
+          - ItineraryApp/views.py → Configured as backup
+          - API key stored in: .env file (GOOGLE_API_KEY)
+
+
+1.7 RAG Model (Retrieval-Augmented Generation)
+------------------------------------------------
+What    : RAG combines a retrieval system with a generative model.
+          It first retrieves relevant documents/data, then uses that
+          context to generate more accurate and grounded responses.
+How Used: The RAG model uses HuggingFace Transformers to load a
+          pre-trained model that matches user trip queries against
+          existing travel plan templates. This enhances the quality
+          of generated itineraries by grounding them in real data.
+Where   :
+          - ItineraryApp/views.py → Model loaded lazily on first use
+          - Uses: transformers library (AutoTokenizer, AutoModel)
+
+
+1.8 PyTorch (Machine Learning Framework)
+------------------------------------------
+What    : PyTorch is an open-source deep learning framework developed
+          by Meta. It provides tensor computation and neural network
+          support for training and running ML models.
+How Used: PyTorch is the backend engine for the RAG model. It handles
+          the tensor operations, model inference, and embeddings
+          computation when the RAG model processes trip queries.
+Where   :
+          - Used internally by the transformers library
+          - Loaded when RAG model initializes in views.py
+
+
+1.9 NLTK (Natural Language Toolkit)
+-------------------------------------
+What    : NLTK is a Python library for natural language processing.
+          It provides tools for tokenization, stemming, stopword
+          removal, and text preprocessing.
+How Used: NLTK preprocesses user input text (trip descriptions) by
+          removing stopwords (common words like "the", "is", "and")
+          and cleaning the text before sending it to the AI models.
+          This improves the quality of generated itineraries.
+Where   :
+          - ItineraryApp/views.py → Text preprocessing functions
+          - Data: nltk.corpus.stopwords (English stopwords list)
+
+
+1.10 hashlib (Password Hashing)
+---------------------------------
+What    : hashlib is a built-in Python module that provides secure
+          hash functions including SHA-256, SHA-512, MD5, etc.
+How Used: The SHA-256 algorithm hashes user passwords before storing
+          them in the database. During login, the entered password
+          is hashed and compared with the stored hash. This means
+          plain-text passwords are NEVER stored in the database.
+Where   :
+          - ItineraryApp/views.py → hash_password() function
+          - Used in: RegisterAction (hashes before INSERT)
+          - Used in: UserLoginAction (hashes before comparison)
+          - Used in: AdminLoginAction (hashes before comparison)
+
+
+1.11 python-dotenv (Environment Variables)
+-------------------------------------------
+What    : python-dotenv reads key-value pairs from a .env file and
+          sets them as environment variables, keeping sensitive data
+          (API keys, database passwords) out of source code.
+How Used: Loads API keys and database credentials from the .env file
+          so they are not hardcoded in the Python source files.
+Where   :
+          - .env file contains: GROQ_API_KEY, GOOGLE_API_KEY,
+            MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
+          - Loaded in: ItineraryApp/views.py → dotenv.load_dotenv()
+
+
+=====================================================================
+2. FRONTEND TECHNOLOGIES
+=====================================================================
+
+2.1 HTML5 (Structure)
+----------------------
+What    : HTML5 is the standard markup language for creating web pages.
+          It defines the structure and content of web pages.
+How Used: All pages are built using HTML5 with Django's template engine
+          (Jinja2-style syntax: {{ variable }}, {% tag %}). Templates
+          extend a base template (base.html) for consistent layout.
+Where   :
+          - ItineraryApp/templates/index.html          → Landing page
+          - ItineraryApp/templates/UserLogin.html      → User login form
+          - ItineraryApp/templates/Register.html       → Registration form
+          - ItineraryApp/templates/UserScreen.html     → User dashboard
+          - ItineraryApp/templates/TravelPlan.html     → Trip planning page
+          - ItineraryApp/templates/TripHistory.html    → Trip history page
+          - ItineraryApp/templates/AdminLogin.html     → Admin login
+          - ItineraryApp/templates/AdminDashboard.html → Admin dashboard
+          - ItineraryApp/templates/base.html           → Base layout template
+
+
+2.2 CSS3 (Styling)
+--------------------
+What    : CSS3 is the styling language for web pages. It controls
+          colors, fonts, spacing, layout, animations, and responsiveness.
+How Used: A custom design system is built using CSS variables for
+          consistent theming. Features include:
+          - CSS Custom Properties (variables) for colors, spacing, fonts
+          - Dark/Light mode via [data-theme="dark"] attribute
+          - Glassmorphism effects (frosted glass backgrounds)
+          - CSS Grid and Flexbox for responsive layouts
+          - Media queries for mobile responsiveness
+          - Smooth transitions and hover effects
+Where   :
+          - static/style.css       → Main design system (34,000+ bytes)
+          - static/animations.css  → Animation keyframes and utilities
+
+
+2.3 Vanilla JavaScript (Interactivity)
+----------------------------------------
+What    : JavaScript is the programming language of the web. "Vanilla"
+          means no external frameworks (like React or jQuery) are used.
+How Used: JavaScript handles all client-side interactivity:
+          - Dark/Light mode toggle (saves preference to localStorage)
+          - Form validation with real-time error messages
+          - Toast notifications (success/error popups)
+          - Scroll-triggered animations (fade-in effects)
+          - Destination preview card selection (auto-fills form)
+          - Expandable/collapsible trip history cards
+          - Smooth loading spinners on form submissions
+Where   :
+          - static/app.js          → Main JavaScript file
+          - Inline <script> tags in TripHistory.html (toggleTrip function)
+
+
+2.4 Google Fonts (Typography)
+------------------------------
+What    : Google Fonts is a free library of web fonts that can be
+          loaded via CDN (Content Delivery Network) for web pages.
+How Used: Two fonts are used for a premium typographic hierarchy:
+          - Inter: Clean sans-serif font for body text, buttons, labels
+          - Playfair Display: Elegant serif font for headings, hero text
+Where   :
+          - Loaded via <link> tag in base.html
+          - Applied in static/style.css via font-family properties
+
+
+=====================================================================
+3. APIs & EXTERNAL SERVICES
+=====================================================================
+
+3.1 Groq Cloud API
+--------------------
+What    : Cloud-based AI inference API by Groq Inc.
+Purpose : Primary engine for generating travel itineraries.
+How     : Sends HTTP POST requests with trip details as a prompt.
+          Returns AI-generated day-by-day travel plans.
+Model   : llama-3.3-70b-versatile
+API Key : Stored in .env as GROQ_API_KEY
+Used In : views.py → TravelPlanAction()
+
+
+3.2 Google Gemini API
+----------------------
+What    : Google's generative AI API for text and content generation.
+Purpose : Backup/fallback AI engine for itinerary generation.
+How     : Can be called if Groq API is unavailable or rate-limited.
+API Key : Stored in .env as GOOGLE_API_KEY
+Used In : views.py → Configured as alternative to Groq
+
+
+=====================================================================
+4. DATABASE SCHEMA
+=====================================================================
+
+Database: itinerary (MySQL)
+
+Table 1: register
+------------------
+Column      | Type         | Description
+------------|--------------|----------------------------------
+username    | VARCHAR(50)  | Primary key, unique username
+password    | VARCHAR(128) | SHA-256 hashed password (64 chars)
+contact_no  | VARCHAR(20)  | User's phone number
+email       | VARCHAR(50)  | User's email address
+address     | VARCHAR(65)  | User's city or address
+
+Table 2: trip_history
+----------------------
+Column      | Type         | Description
+------------|--------------|----------------------------------
+id          | INT (AUTO)   | Primary key, auto-increment
+username    | VARCHAR(50)  | Foreign key → register.username
+source      | VARCHAR(100) | Trip starting location
+destination | VARCHAR(100) | Trip destination
+budget      | VARCHAR(20)  | Trip budget amount
+description | TEXT         | User's trip preferences/notes
+itinerary   | LONGTEXT     | Full AI-generated itinerary text
+created_at  | TIMESTAMP    | When the trip was generated
+
+Table 3: admin_users
+----------------------
+Column      | Type         | Description
+------------|--------------|----------------------------------
+id          | INT (AUTO)   | Primary key, auto-increment
+username    | VARCHAR(50)  | Unique admin username
+password    | VARCHAR(128) | SHA-256 hashed password
+
+
+=====================================================================
+5. SECURITY MEASURES
+=====================================================================
+
+5.1 SHA-256 Password Hashing
+    - All passwords (user + admin) are hashed using SHA-256 before storage
+    - Plain-text passwords are NEVER stored in the database
+    - Login compares hash of entered password vs stored hash
+
+5.2 Django CSRF Protection
+    - All POST forms include {% csrf_token %} to prevent
+      Cross-Site Request Forgery attacks
+
+5.3 Session-Based Authentication
+    - User login state stored in Django sessions (request.session)
+    - Separate sessions for users ('username') and admins ('admin_username')
+    - Session cleared on logout
+
+5.4 Environment Variables
+    - API keys and database credentials stored in .env file
+    - Never hardcoded in source code
+    - .env file should be added to .gitignore
+
+
+=====================================================================
+6. HOW TO RUN THE PROJECT
+=====================================================================
+
+PREREQUISITES:
+  - Python 3.10 or higher
+  - MySQL Server installed and running
+  - pip (Python package manager)
+
+STEP 1: Navigate to project folder
+    cd "Travel Plan Itinerary Generator/Travel Plan Itinerary Generator"
+
+STEP 2: Install all dependencies
+    pip install django pymysql python-dotenv groq google-generativeai torch transformers nltk
+
+STEP 3: Create MySQL database
+    Open MySQL Workbench and run:
+    CREATE DATABASE itinerary;
+    (Tables are auto-created when the server starts)
+
+STEP 4: Create .env file in project root
+    GROQ_API_KEY=your_groq_api_key
+    GOOGLE_API_KEY=your_google_api_key
+    MYSQL_HOST=localhost
+    MYSQL_USER=root
+    MYSQL_PASSWORD=your_mysql_password
+    MYSQL_DATABASE=itinerary
+
+STEP 5: Start the server
+    python manage.py runserver 8080
+
+STEP 6: Open in browser
+    http://127.0.0.1:8080/
+
+STOP THE SERVER:
+    Press Ctrl + C in the terminal
+
+
+=====================================================================
+7. APPLICATION URLS
+=====================================================================
+
+USER-FACING PAGES:
+  http://127.0.0.1:8080/                  → Home / Landing Page
+  http://127.0.0.1:8080/UserLogin.html    → User Login
+  http://127.0.0.1:8080/Register.html     → User Registration
+  http://127.0.0.1:8080/TravelPlan.html   → Plan a Trip (login required)
+  http://127.0.0.1:8080/TripHistory.html  → My Trips (login required)
+
+ADMIN PAGES:
+  http://127.0.0.1:8080/AdminLogin.html       → Admin Login
+  http://127.0.0.1:8080/AdminDashboard.html   → Admin Dashboard
+
+Default Admin Credentials:
+    Username: admin
+    Password: admin123
+
+Create New Admin (via MySQL):
+    INSERT INTO admin_users (username, password)
+    VALUES ('newadmin', SHA2('your_password', 256));
+
+
+=====================================================================
+8. ADMIN PANEL FEATURES
+=====================================================================
+
+The admin panel provides platform management capabilities:
+
+8.1 Stats Overview Cards
+    - Total registered users count
+    - Total trips generated count
+    - Most popular destination
+
+8.2 User Management Table
+    - View all users: username, email, contact, address
+    - Delete any user (also removes their trip history)
+    - Confirmation dialog before deletion
+
+8.3 Trip History Table
+    - View all trips from all users
+    - Shows: user, source, destination, budget, date
+
+8.4 Top Destinations
+    - Lists the most visited destinations with trip counts
+
+
+=====================================================================
+9. PROJECT DIRECTORY STRUCTURE
+=====================================================================
+
+Travel Plan Itinerary Generator/
+├── Itinerary/                    # Django project configuration
+│   ├── __init__.py               # Registers PyMySQL as MySQLdb
+│   ├── settings.py               # Django settings (DB, templates, static)
+│   ├── urls.py                   # Root URL conf (includes app urls)
+│   └── wsgi.py                   # WSGI entry point
+├── ItineraryApp/                 # Main application
+│   ├── views.py                  # All view functions (user, trip, admin)
+│   ├── urls.py                   # App URL routing (all page routes)
+│   ├── admin.py                  # Django admin (unused, custom admin built)
+│   └── templates/                # HTML templates
+│       ├── base.html             # Base layout (navbar, theme, footer)
+│       ├── index.html            # Landing page (hero, features, CTA)
+│       ├── UserLogin.html        # User login form
+│       ├── Register.html         # User registration form
+│       ├── UserScreen.html       # User dashboard after login
+│       ├── TravelPlan.html       # Trip planning (destinations + form)
+│       ├── TripHistory.html      # User's saved trips
+│       ├── AdminLogin.html       # Admin login page
+│       └── AdminDashboard.html   # Admin dashboard (stats, tables)
+├── static/                       # Static assets
+│   ├── style.css                 # Main CSS design system
+│   ├── animations.css            # CSS animations and keyframes
+│   └── app.js                    # JavaScript (theme, validation, etc.)
+├── .env                          # Environment variables (API keys, DB)
+├── database.txt                  # SQL schema reference
+├── tech_stack.txt                # This documentation file
+└── manage.py                     # Django management commands

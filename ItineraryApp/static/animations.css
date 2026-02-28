@@ -1,0 +1,408 @@
+/* ============================================
+   ANIMATIONS & MICRO-INTERACTIONS
+   Travel Plan Itinerary Generator v2.0
+   ============================================ */
+
+/* --- Entrance Animations --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* --- Reveal on Scroll Classes --- */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered delays for children */
+.stagger-1 {
+    transition-delay: 0.1s;
+}
+
+.stagger-2 {
+    transition-delay: 0.2s;
+}
+
+.stagger-3 {
+    transition-delay: 0.3s;
+}
+
+.stagger-4 {
+    transition-delay: 0.4s;
+}
+
+.stagger-5 {
+    transition-delay: 0.5s;
+}
+
+/* --- Page Entrance --- */
+.page-enter {
+    animation: fadeInUp 0.6s ease-out both;
+}
+
+.page-enter-delay-1 {
+    animation-delay: 0.1s;
+}
+
+.page-enter-delay-2 {
+    animation-delay: 0.2s;
+}
+
+.page-enter-delay-3 {
+    animation-delay: 0.3s;
+}
+
+.page-enter-delay-4 {
+    animation-delay: 0.4s;
+}
+
+/* --- Hero Animations --- */
+.hero-animate-title {
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.hero-animate-subtitle {
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.hero-animate-actions {
+    animation: fadeInUp 0.8s ease-out 0.6s both;
+}
+
+/* --- Card Hover Effects --- */
+.card-hover-lift {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.card-hover-lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px var(--shadow-color-lg);
+}
+
+/* --- Button Animations --- */
+@keyframes btnPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 12px rgba(99, 102, 241, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    }
+}
+
+.btn-pulse {
+    animation: btnPulse 2s ease-in-out infinite;
+}
+
+/* Ripple effect */
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.btn .ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+/* --- Floating Animation (decorative elements) --- */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes floatSlow {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(3deg);
+    }
+}
+
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.float-slow {
+    animation: floatSlow 5s ease-in-out infinite;
+}
+
+.float-delay-1 {
+    animation-delay: 0.5s;
+}
+
+.float-delay-2 {
+    animation-delay: 1s;
+}
+
+.float-delay-3 {
+    animation-delay: 1.5s;
+}
+
+/* --- Loading Animations --- */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg,
+            var(--gray-200) 25%,
+            var(--gray-100) 50%,
+            var(--gray-200) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-md);
+}
+
+[data-theme="dark"] .skeleton {
+    background: linear-gradient(90deg,
+            var(--gray-800) 25%,
+            var(--gray-700) 50%,
+            var(--gray-800) 75%);
+    background-size: 200% 100%;
+}
+
+/* --- Typewriter effect for loading text --- */
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.loading-dots::after {
+    content: '...';
+    animation: blink 1.2s step-start infinite;
+}
+
+/* --- Gradient Animation (hero bg) --- */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.animated-gradient {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+}
+
+/* --- Toast / Notification Animation --- */
+@keyframes slideInToast {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutToast {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.toast {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    padding: var(--space-md) var(--space-xl);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px var(--shadow-color-lg);
+    border: 1px solid var(--border-color);
+    z-index: 10000;
+    animation: slideInToast 0.4s ease-out;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.toast.hiding {
+    animation: slideOutToast 0.3s ease-in forwards;
+}
+
+.toast.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.toast.error {
+    border-left: 4px solid var(--error-color);
+}
+
+/* --- Input Focus Glow --- */
+@keyframes inputGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+}
+
+.form-input:focus {
+    animation: inputGlow 0.3s ease-out forwards;
+}
+
+/* --- Smooth Icon Transitions (for theme toggle) --- */
+@keyframes rotateIn {
+    from {
+        transform: rotate(-90deg) scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: rotate(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .theme-toggle {
+    animation: rotateIn 0.3s ease-out;
+}
+
+/* --- Responsive Motion Preferences --- */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .animate-on-scroll {
+        opacity: 1;
+        transform: none;
+    }
+}

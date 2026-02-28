@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}My Trips — TravelMind{% endblock %}
+
+{% block nav_items %}
+<li><a href="{% url 'TravelPlan' %}">Plan a Trip</a></li>
+<li><a href="{% url 'TripHistory' %}" class="active">My Trips</a></li>
+<li><a href="{% url 'index' %}">Logout</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="container">
+        <!-- Header -->
+        <div class="dashboard-header page-enter">
+            <div
+                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-md);">
+                <div>
+                    <h1><span class="text-gradient">My Trips</span></h1>
+                    <p class="welcome-text">Your complete travel history — {{ trips|length }} trip{{ trips|pluralize }}
+                        planned so far.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <a href="{% url 'TravelPlan' %}" class="btn btn-primary">
+                        ✨ Plan New Trip
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if trips %}
+        <!-- Trip History Cards -->
+        <div style="display: flex; flex-direction: column; gap: var(--space-lg);">
+            {% for trip in trips %}
+            <div class="card page-enter" style="animation-delay: {{ forloop.counter0 }}00ms;">
+                <div
+                    style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: var(--space-md); margin-bottom: var(--space-lg);">
+                    <div style="display: flex; align-items: center; gap: var(--space-md);">
+                        <div class="card-icon"
+                            style="margin-bottom: 0; background: linear-gradient(135deg, var(--primary-500), var(--primary-700)); color: white;">
+                            🗺️
+                        </div>
+                        <div>
+                            <h3 style="margin-bottom: 2px;">{{ trip.source }} → {{ trip.destination }}</h3>
+                            <p class="text-muted" style="font-size: 0.8rem;">
+                                Budget: ${{ trip.budget }} • {{ trip.created_at|date:"M d, Y \a\t h:i A" }}
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: var(--space-sm);">
+                        <span class="dest-tag"
+                            style="background: var(--primary-50); color: var(--primary-600); padding: 4px 12px; font-size: 0.8rem;">
+                            💰 ${{ trip.budget }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Collapsed Itinerary Preview -->
+                <div class="itinerary-preview" id="trip-{{ trip.id }}"
+                    style="max-height: 150px; overflow: hidden; position: relative; transition: max-height 0.4s ease;">
+                    <div class="itinerary-content" style="font-size: 0.9rem;">
+                        {{ trip.itinerary|safe }}
+                    </div>
+                    <div class="itinerary-fade" id="fade-{{ trip.id }}"
+                        style="position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(transparent, var(--card-bg)); pointer-events: none;">
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-ghost btn-sm mt-md expand-btn" data-trip-id="{{ trip.id }}"
+                    onclick="toggleTrip({{ trip.id }})">
+                    <span id="btn-text-{{ trip.id }}">Show Full Itinerary ↓</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="card page-enter" style="text-align: center; padding: var(--space-4xl) var(--space-2xl);">
+            <div style="font-size: 4rem; margin-bottom: var(--space-lg);">🧳</div>
+            <h3>No Trips Yet</h3>
+            <p class="text-muted"
+                style="margin-bottom: var(--space-xl); max-width: 400px; margin-left: auto; margin-right: auto;">
+                You haven't planned any trips yet. Start exploring destinations and let our AI create the perfect
+                itinerary for you!
+            </p>
+            <a href="{% url 'TravelPlan' %}" class="btn btn-primary btn-lg btn-pulse">
+                ✨ Plan Your First Trip
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleTrip(tripId) {
+        const preview = document.getElementById('trip-' + tripId);
+        const fade = document.getElementById('fade-' + tripId);
+        const btnText = document.getElementById('btn-text-' + tripId);
+
+        if (preview.style.maxHeight === '150px') {
+            preview.style.maxHeight = preview.scrollHeight + 'px';
+            fade.style.display = 'none';
+            btnText.textContent = 'Collapse ↑';
+        } else {
+            preview.style.maxHeight = '150px';
+            fade.style.display = 'block';
+            btnText.textContent = 'Show Full Itinerary ↓';
+        }
+    }
+</script>
+{% endblock %}

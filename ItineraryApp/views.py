@@ -5,7 +5,8 @@ from django.http import HttpResponse
 import os
 from dotenv import load_dotenv
 load_dotenv()
-import sqlite3
+import pymysql
+import hashlib
 import json
 from django.core.files.storage import FileSystemStorage
 import torch
@@ -21,28 +22,70 @@ from image import search_images, download_images
 import requests as http_requests
 import PIL.Image
 
-global uname
+# username stored in session (see UserLoginAction)
 
 #groq model to generate itinerary
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 print("Groq API configured (using llama3-70b)")
 
-# Initialize SQLite database for user registration
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'db.sqlite3')
-def init_user_db():
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS register(
-        username VARCHAR(50) PRIMARY KEY,
-        password VARCHAR(50),
-        contact_no VARCHAR(20),
-        email VARCHAR(50),
-        address VARCHAR(65)
-    )''')
-    conn.commit()
-    conn.close()
-init_user_db()
+# ============================================
+# MySQL Database Configuration
+# ============================================
+MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
+MYSQL_USER = os.environ.get("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "1234")
+MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE", "itinerary")
+
+def get_db_connection():
+    """Get a MySQL database connection"""
+    return pymysql.connect(
+        host=MYSQL_HOST,
+        user=MYSQL_USER,
+        password=MYSQL_PASSWORD,
+        database=MYSQL_DATABASE,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+
+def hash_password(password):
+    """Hash password using SHA-256 for secure storage"""
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+def init_mysql_db():
+    """Initialize MySQL database tables"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('''CREATE TABLE IF NOT EXISTS register(
+            username VARCHAR(50) PRIMARY KEY,
+            password VARCHAR(128),
+            contact_no VARCHAR(20),
+            email VARCHAR(50),
+            address VARCHAR(65)
+        )''')
+        cur.execute('''CREATE TABLE IF NOT EXISTS trip_history(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50),
+            source VARCHAR(100),
+            destination VARCHAR(100),
+            budget VARCHAR(20),
+            description TEXT,
+            itinerary LONGTEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(username) REFERENCES register(username)
+        )''')
+        cur.execute('''CREATE TABLE IF NOT EXISTS admin_users(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) UNIQUE,
+            password VARCHAR(128)
+        )''')
+        conn.commit()
+        conn.close()
+        print("MySQL database initialized successfully.")
+    except Exception as e:
+        print(f"MySQL init error: {e}")
+
+init_mysql_db()
 
 def call_gemini(prompt, max_retries=3):
     """Call Groq API to generate travel itinerary"""
@@ -216,7 +259,6 @@ def TravelPlanAction(request):
     if request.method == 'POST':
         # Ensure models are loaded
         loader = get_model_loader()
-        global uname
 
         source = request.POST.get('t1', False)
         destination = request.POST.get('t2', False)
@@ -266,8 +308,7 @@ def TravelPlanAction(request):
 
         data = ""        
         if not plan_name:
-            # Fallback or error handling if no plan found
-            data = "No matching itinerary found."
+            data = "<p>No matching itinerary found. Please try again with different details.</p>"
         else:
             with open('ItineraryApp/static/model/'+plan_name, "r") as file:
                 for line in file:
@@ -275,16 +316,41 @@ def TravelPlanAction(request):
                     if len(values) == 0:
                         data += "<br/>"
                     else:
-                        data += values+"<br/>"
+                        # Format headings with proper HTML tags
+                        if values.startswith('**') and values.endswith('**'):
+                            data += '<h3 style="margin-top:1rem;">' + values.strip('*') + '</h3>'
+                        elif values.startswith('# '):
+                            data += '<h3 style="margin-top:1rem;">' + values[2:] + '</h3>'
+                        elif values.startswith('## '):
+                            data += '<h4 style="margin-top:0.75rem;">' + values[3:] + '</h4>'
+                        else:
+                            data += '<p style="margin-bottom:0.25rem;">' + values + '</p>'
 
+        # Build images list for the gallery grid
+        images = []
+        img_dir = 'ItineraryApp/static/location_images/' + destination.lower()
+        if os.path.exists(img_dir):
+            for root, dirs, directory in os.walk(img_dir):
+                for j in range(len(directory)):
+                    images.append('location_images/' + destination.lower() + '/' + directory[j])
 
-        output = '<br/><table border=0 align=center><tr>'
-        for root, dirs, directory in os.walk('ItineraryApp/static/location_images/'+destination.lower()):
-            for j in range(len(directory)):
-                output += '<td><img src="static/location_images/'+destination.lower()+'/'+directory[j]+'" width="200" height="200"/></td>'
-        output += "</tr></table><br/><br/><br/><br/>"      
-        data += output
-        context= {'data': data}
+        # Save trip to MySQL history
+        username = request.session.get('username', '')
+        if username:
+            try:
+                conn = get_db_connection()
+                cur = conn.cursor()
+                cur.execute(
+                    "INSERT INTO trip_history (username, source, destination, budget, description, itinerary) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (username, source, destination, budget, desc, data)
+                )
+                conn.commit()
+                conn.close()
+                print(f"Trip saved to history for user: {username}")
+            except Exception as e:
+                print(f"Error saving trip history: {e}")
+
+        context = {'data': data, 'images': images, 'username': username}
         return render(request, 'UserScreen.html', context)
         
 def TravelPlan(request):
@@ -305,25 +371,27 @@ def index(request):
 
 def UserLoginAction(request):
     if request.method == 'POST':
-        global uname
         username = request.POST.get('t1', False)
         password = request.POST.get('t2', False)
-        index = 0
-        con = sqlite3.connect(DB_PATH)
-        cur = con.cursor()
-        cur.execute("SELECT username, password FROM register WHERE username=? AND password=?", (username, password))
-        rows = cur.fetchall()
-        for row in rows:
-            uname = username
-            index = 1
-            break
-        con.close()
-        if index == 1:
-            context= {'data':'welcome '+username}
-            return render(request, 'UserScreen.html', context)
-        else:
-            context= {'data':'login failed'}
-            return render(request, 'UserLogin.html', context)        
+        hashed_password = hash_password(password)
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT username, password FROM register WHERE username=%s", (username,))
+            row = cur.fetchone()
+            conn.close()
+            if row and row['password'] == hashed_password:
+                request.session['username'] = username
+                # Load trip history count for welcome message
+                context = {'data': 'welcome ' + username, 'username': username}
+                return render(request, 'UserScreen.html', context)
+            else:
+                context = {'data': 'Invalid username or password. Please try again.'}
+                return render(request, 'UserLogin.html', context)
+        except Exception as e:
+            print(f"Login error: {e}")
+            context = {'data': 'Database error. Please try again later.'}
+            return render(request, 'UserLogin.html', context)
     
 def RegisterAction(request):
     if request.method == 'POST':
@@ -331,24 +399,144 @@ def RegisterAction(request):
         password = request.POST.get('t2', False)
         contact = request.POST.get('t3', False)
         email = request.POST.get('t4', False)
-        address = request.POST.get('t5', False)        
+        address = request.POST.get('t5', False)
         
+        hashed_password = hash_password(password)
         status = "none"
-        con = sqlite3.connect(DB_PATH)
-        cur = con.cursor()
-        cur.execute("SELECT username FROM register")
-        rows = cur.fetchall()
-        for row in rows:
-            if row[0] == username:
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT username FROM register WHERE username=%s", (username,))
+            row = cur.fetchone()
+            if row:
                 status = "Username already exists"
-                break
-        if status == "none":
-            cur.execute("INSERT INTO register VALUES(?,?,?,?,?)", (username, password, contact, email, address))
-            con.commit()
-            print(cur.rowcount, "Record Inserted")
-            if cur.rowcount == 1:
-                status = "Signup task completed"
-        con.close()
-        context= {'data': status}
+            else:
+                cur.execute(
+                    "INSERT INTO register (username, password, contact_no, email, address) VALUES (%s, %s, %s, %s, %s)",
+                    (username, hashed_password, contact, email, address)
+                )
+                conn.commit()
+                print(cur.rowcount, "Record Inserted into MySQL")
+                if cur.rowcount == 1:
+                    status = "Account created successfully! You can now sign in."
+            conn.close()
+        except Exception as e:
+            print(f"Registration error: {e}")
+            status = "Registration failed. Please try again."
+        context = {'data': status}
         return render(request, 'Register.html', context)
 
+def TripHistory(request):
+    """View trip history for the logged-in user"""
+    username = request.session.get('username', '')
+    if not username:
+        return render(request, 'UserLogin.html', {'data': 'Please log in to view your trip history.'})
+    
+    trips = []
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, source, destination, budget, description, itinerary, created_at FROM trip_history WHERE username=%s ORDER BY created_at DESC",
+            (username,)
+        )
+        trips = cur.fetchall()
+        conn.close()
+    except Exception as e:
+        print(f"Trip history error: {e}")
+    
+    context = {'trips': trips, 'username': username}
+    return render(request, 'TripHistory.html', context)
+
+# ============================================
+# ADMIN PANEL VIEWS
+# ============================================
+def AdminLogin(request):
+    if request.method == 'GET':
+        return render(request, 'AdminLogin.html', {})
+
+def AdminLoginAction(request):
+    if request.method == 'POST':
+        username = request.POST.get('t1', '')
+        password = request.POST.get('t2', '')
+        hashed_password = hash_password(password)
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT username, password FROM admin_users WHERE username=%s", (username,))
+            row = cur.fetchone()
+            conn.close()
+            if row and row['password'] == hashed_password:
+                request.session['admin_username'] = username
+                from django.shortcuts import redirect
+                return redirect('AdminDashboard')
+            else:
+                context = {'data': 'Invalid admin credentials.'}
+                return render(request, 'AdminLogin.html', context)
+        except Exception as e:
+            print(f"Admin login error: {e}")
+            context = {'data': 'Database error. Please try again.'}
+            return render(request, 'AdminLogin.html', context)
+
+def AdminDashboard(request):
+    admin = request.session.get('admin_username', '')
+    if not admin:
+        return render(request, 'AdminLogin.html', {'data': 'Please log in as admin.'})
+    
+    users = []
+    trips = []
+    stats = {}
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        # Get all users
+        cur.execute("SELECT username, contact_no, email, address FROM register ORDER BY username")
+        users = cur.fetchall()
+        # Get all trips
+        cur.execute("SELECT t.id, t.username, t.source, t.destination, t.budget, t.created_at FROM trip_history t ORDER BY t.created_at DESC")
+        trips = cur.fetchall()
+        # Stats
+        cur.execute("SELECT COUNT(*) as cnt FROM register")
+        stats['total_users'] = cur.fetchone()['cnt']
+        cur.execute("SELECT COUNT(*) as cnt FROM trip_history")
+        stats['total_trips'] = cur.fetchone()['cnt']
+        cur.execute("SELECT destination, COUNT(*) as cnt FROM trip_history GROUP BY destination ORDER BY cnt DESC LIMIT 5")
+        stats['top_destinations'] = cur.fetchall()
+        conn.close()
+    except Exception as e:
+        print(f"Admin dashboard error: {e}")
+
+    top_dest = ''
+    if stats.get('top_destinations'):
+        top_dest = stats['top_destinations'][0]['destination']
+        for d in stats['top_destinations']:
+            d['trip_count'] = d['cnt']
+
+    context = {'users': users, 'trips': trips, 'stats': stats, 'admin': admin, 'top_dest': top_dest}
+    return render(request, 'AdminDashboard.html', context)
+
+def AdminDeleteUser(request):
+    admin = request.session.get('admin_username', '')
+    if not admin:
+        return render(request, 'AdminLogin.html', {'data': 'Please log in as admin.'})
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            # Delete trip history first (FK constraint)
+            cur.execute("DELETE FROM trip_history WHERE username=%s", (username,))
+            cur.execute("DELETE FROM register WHERE username=%s", (username,))
+            conn.commit()
+            conn.close()
+            print(f"Admin deleted user: {username}")
+        except Exception as e:
+            print(f"Admin delete error: {e}")
+    
+    return AdminDashboard(request)
+
+def AdminLogout(request):
+    if 'admin_username' in request.session:
+        del request.session['admin_username']
+    return render(request, 'AdminLogin.html', {})

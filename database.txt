@@ -1,8 +1,22 @@
 create database itinerary;
 use itinerary;
 
-create table register(username varchar(50) primary key,
-password varchar(50),
-contact_no varchar(20),
-email varchar(50), 
-address varchar(65));
+create table register(
+    username varchar(50) primary key,
+    password varchar(128),
+    contact_no varchar(20),
+    email varchar(50), 
+    address varchar(65)
+);
+
+create table trip_history(
+    id int auto_increment primary key,
+    username varchar(50),
+    source varchar(100),
+    destination varchar(100),
+    budget varchar(20),
+    description text,
+    itinerary longtext,
+    created_at timestamp default current_timestamp,
+    foreign key(username) references register(username)
+);
