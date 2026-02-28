@@ -1105,12 +1105,8 @@ textarea.form-input {
   flex-wrap: wrap;
 }
 
-.itinerary-card {
-  padding: var(--space-2xl);
-}
-
 .itinerary-content {
-  line-height: 1.9;
+  line-height: 1.8;
   font-size: 0.95rem;
   color: var(--text-secondary);
 }
@@ -1128,6 +1124,483 @@ textarea.form-input {
   margin-bottom: var(--space-md);
   color: var(--text-primary);
 }
+
+/* ============================================
+   RICH ITINERARY — Trip Summary Banner
+   ============================================ */
+.trip-summary {
+  background: var(--hero-gradient);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-2xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.trip-summary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.trip-summary-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.trip-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 800;
+  color: white;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.trip-arrow {
+  font-size: 1.5rem;
+  opacity: 0.7;
+  animation: pulse-arrow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-arrow {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateX(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+}
+
+.trip-meta-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.trip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.budget-pill {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.duration-pill {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   RICH ITINERARY — Day Cards
+   ============================================ */
+.day-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.day-card:hover {
+  box-shadow: 0 8px 32px var(--shadow-color-lg);
+  transform: translateY(-2px);
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+[data-theme="dark"] .day-header {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.06));
+}
+
+.day-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: var(--space-xs) var(--space-md);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.35);
+  white-space: nowrap;
+}
+
+.day-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.day-body {
+  padding: var(--space-lg) var(--space-xl);
+}
+
+.day-sub-header {
+  padding: var(--space-sm) 0;
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-sm);
+  color: var(--primary-600);
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+[data-theme="dark"] .day-sub-header {
+  color: var(--primary-400);
+}
+
+.day-note {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   RICH ITINERARY — Activity List
+   ============================================ */
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-sm) 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-xs);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-fast);
+}
+
+.activity-item:hover {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .activity-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activity-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-50);
+  border-radius: var(--radius-md);
+}
+
+[data-theme="dark"] .activity-icon {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.activity-text {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.activity-text strong {
+  color: var(--text-primary);
+}
+
+/* ============================================
+   RICH ITINERARY — Cost Tags
+   ============================================ */
+.cost-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--success-color);
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+[data-theme="dark"] .cost-tag {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* ============================================
+   RICH ITINERARY — Budget Card
+   ============================================ */
+.budget-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-xl);
+  margin: var(--space-2xl) 0;
+  overflow: hidden;
+  box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.budget-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03));
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+[data-theme="dark"] .budget-header {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.04));
+}
+
+.budget-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.budget-icon {
+  font-size: 1.5rem;
+}
+
+.budget-body {
+  padding: var(--space-lg) var(--space-xl);
+}
+
+.budget-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.budget-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border-color-light);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  gap: var(--space-sm);
+}
+
+.budget-item:last-child {
+  border-bottom: none;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.budget-item strong {
+  color: var(--text-primary);
+}
+
+/* ============================================
+   RICH ITINERARY — Resources Grid
+   ============================================ */
+.resources-section {
+  margin: var(--space-2xl) 0;
+}
+
+.resources-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.resources-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.resources-icon {
+  font-size: 1.4rem;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.resource-card {
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-lg);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.resource-card:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--primary-300);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+[data-theme="dark"] .resource-card:hover {
+  border-color: var(--primary-700);
+}
+
+.resource-link {
+  color: var(--primary-500);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.resource-link:hover {
+  color: var(--primary-600);
+  text-decoration: underline;
+}
+
+/* ============================================
+   RICH ITINERARY — Misc Elements
+   ============================================ */
+.section-divider {
+  margin: var(--space-2xl) 0 var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--primary-100);
+}
+
+.section-divider h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+}
+
+[data-theme="dark"] .section-divider {
+  border-bottom-color: rgba(99, 102, 241, 0.2);
+}
+
+.itinerary-intro {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: var(--space-md);
+  max-width: 800px;
+}
+
+.itinerary-note {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  padding-left: var(--space-md);
+  border-left: 3px solid var(--primary-200);
+  margin-bottom: var(--space-sm);
+}
+
+[data-theme="dark"] .itinerary-note {
+  border-left-color: var(--primary-700);
+}
+
+.itinerary-footer {
+  margin-top: var(--space-2xl);
+  padding: var(--space-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.itinerary-disclaimer {
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  margin: 0;
+  text-align: center;
+}
+
+/* ============================================
+   RICH ITINERARY — Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .trip-route {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .trip-arrow {
+    transform: rotate(90deg);
+  }
+
+  @keyframes pulse-arrow {
+
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: rotate(90deg) translateX(0);
+    }
+
+    50% {
+      opacity: 1;
+      transform: rotate(90deg) translateX(4px);
+    }
+  }
+
+  .day-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  .day-body {
+    padding: var(--space-md);
+  }
+
+  .activity-item {
+    padding: var(--space-sm);
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 /* Image Gallery */
 .gallery-grid {

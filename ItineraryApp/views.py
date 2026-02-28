@@ -255,6 +255,191 @@ def get_model_loader():
     return loader
 
 
+def format_itinerary_html(raw_text, source, destination, budget):
+    """Convert raw LLM markdown text into rich, visually structured HTML"""
+    lines = raw_text.split('\n')
+    html = ''
+    in_day_card = False
+    in_budget = False
+    in_resources = False
+    in_activity_list = False
+    day_count = 0
+
+    # Detect total days for the summary
+    import re as re_fmt
+    day_matches = re_fmt.findall(r'\*\*Day\s+(\d+)', raw_text)
+    total_days = max([int(d) for d in day_matches]) if day_matches else 0
+
+    # Trip Summary Header
+    html += '<div class="trip-summary">'
+    html += '<div class="trip-summary-content">'
+    html += f'<div class="trip-route"><span class="trip-from">🛫 {source}</span><span class="trip-arrow">→</span><span class="trip-to">🛬 {destination}</span></div>'
+    html += '<div class="trip-meta-pills">'
+    html += f'<span class="trip-pill budget-pill">💰 ${budget} Budget</span>'
+    if total_days > 0:
+        html += f'<span class="trip-pill duration-pill">📅 {total_days} Days</span>'
+    html += '</div>'
+    html += '</div></div>'
+
+    def process_inline_markdown(text):
+        """Convert inline markdown to HTML: **bold**, [links](url), cost tags"""
+        # Convert markdown links [text](url)
+        text = re_fmt.sub(r'\[([^\]]+)\]\((https?://[^\)]+)\)', r'<a href="\2" target="_blank" class="resource-link">\1 ↗</a>', text)
+        # Convert bold **text**
+        text = re_fmt.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
+        # Highlight cost patterns like (Cost: $XX-$YY) or ($XX-$YY)
+        text = re_fmt.sub(r'\((?:Cost:\s*)?\$([^)]+)\)', r'<span class="cost-tag">💲\1</span>', text)
+        return text
+
+    def get_activity_icon(text):
+        """Assign an emoji icon based on activity content"""
+        lower = text.lower()
+        if any(w in lower for w in ['flight', 'fly', 'airport', 'airline']):
+            return '✈️'
+        if any(w in lower for w in ['bus', 'train', 'transport', 'metro', 'taxi', 'cab']):
+            return '🚌'
+        if any(w in lower for w in ['hotel', 'check-in', 'check in', 'accommodation', 'stay', 'hostel']):
+            return '🏨'
+        if any(w in lower for w in ['food', 'eat', 'restaurant', 'cuisine', 'breakfast', 'lunch', 'dinner', 'café', 'cafe', 'street food', 'meal', 'snack']):
+            return '🍽️'
+        if any(w in lower for w in ['temple', 'church', 'mosque', 'monastery', 'shrine', 'historical', 'heritage', 'monument', 'museum', 'fort', 'palace']):
+            return '🏛️'
+        if any(w in lower for w in ['adventure', 'trek', 'hike', 'rafting', 'surf', 'sport', 'ski', 'paraglid']):
+            return '🏔️'
+        if any(w in lower for w in ['market', 'shop', 'mall', 'bazaar', 'buy']):
+            return '🛍️'
+        if any(w in lower for w in ['cultural', 'dance', 'music', 'festival', 'art']):
+            return '🎭'
+        if any(w in lower for w in ['beach', 'sea', 'ocean', 'coast', 'island']):
+            return '🏖️'
+        if any(w in lower for w in ['nature', 'park', 'garden', 'forest', 'wildlife', 'waterfall', 'valley', 'lake']):
+            return '🌿'
+        if any(w in lower for w in ['yoga', 'meditation', 'wellness', 'spa', 'hot spring']):
+            return '🧘'
+        return '📍'
+
+    def close_open_sections():
+        nonlocal html, in_activity_list, in_day_card, in_budget, in_resources
+        if in_activity_list:
+            html += '</ul>'
+            in_activity_list = False
+        if in_day_card:
+            html += '</div></div>'
+            in_day_card = False
+        if in_budget:
+            html += '</div></div>'
+            in_budget = False
+        if in_resources:
+            html += '</div></div>'
+            in_resources = False
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        # Detect Day headers: **Day N: Title** or **Day N — Title**
+        day_match = re_fmt.match(r'^\*\*Day\s+(\d+)[:\s—\-]+(.+?)\*\*$', stripped)
+        if day_match:
+            close_open_sections()
+            day_num = day_match.group(1)
+            day_title = day_match.group(2).strip()
+            day_count += 1
+            stagger = (day_count % 4) + 1
+            html += f'<div class="day-card animate-on-scroll stagger-{stagger}">'
+            html += f'<div class="day-header"><span class="day-badge">Day {day_num}</span><h3 class="day-title">{day_title}</h3></div>'
+            html += '<div class="day-body">'
+            in_day_card = True
+            continue
+
+        # Detect Budget Breakdown section
+        if stripped.startswith('**Budget Breakdown') or stripped.startswith('**Budget breakdown'):
+            close_open_sections()
+            html += '<div class="budget-card">'
+            html += '<div class="budget-header"><span class="budget-icon">💰</span><h3>Budget Breakdown</h3></div>'
+            html += '<div class="budget-body"><ul class="budget-list">'
+            in_budget = True
+            continue
+
+        # Detect Resource sections
+        resource_match = re_fmt.match(r'^\*\*(Travel Websites|Hotel Booking|Tourist Guides?|Weather Forecast|Transportation).*?\*\*:?$', stripped, re_fmt.IGNORECASE)
+        if resource_match:
+            close_open_sections()
+            section_name = resource_match.group(1)
+            icon_map = {
+                'travel websites': '🌐', 'hotel booking': '🏨',
+                'tourist guide': '🗺️', 'tourist guides': '🗺️',
+                'weather forecast': '🌤️', 'transportation': '🚆'
+            }
+            icon = icon_map.get(section_name.lower(), '📋')
+            html += f'<div class="resources-section">'
+            html += f'<div class="resources-header"><span class="resources-icon">{icon}</span><h3>{stripped.strip("*: ")}</h3></div>'
+            html += '<div class="resources-grid">'
+            in_resources = True
+            continue
+
+        # Detect other bold section headers like **Some Header**
+        bold_match = re_fmt.match(r'^\*\*(.+?)\*\*:?$', stripped)
+        if bold_match and not stripped.startswith('* '):
+            title = bold_match.group(1)
+            # Skip if it's within a day card (sub-category)
+            if in_day_card:
+                if in_activity_list:
+                    html += '</ul>'
+                    in_activity_list = False
+                html += f'<div class="day-sub-header"><strong>{title}</strong></div>'
+                continue
+            else:
+                close_open_sections()
+                html += f'<div class="section-divider"><h3>{title}</h3></div>'
+                continue
+
+        # Bullet items
+        if stripped.startswith('* ') or stripped.startswith('- '):
+            content = stripped[2:].strip()
+            processed = process_inline_markdown(content)
+
+            if in_budget:
+                html += f'<li class="budget-item">{processed}</li>'
+                continue
+
+            if in_resources:
+                html += f'<div class="resource-card">{processed}</div>'
+                continue
+
+            # Activity item in a day card
+            if in_day_card:
+                if not in_activity_list:
+                    html += '<ul class="activity-list">'
+                    in_activity_list = True
+                icon = get_activity_icon(content)
+                html += f'<li class="activity-item"><span class="activity-icon">{icon}</span><span class="activity-text">{processed}</span></li>'
+                continue
+
+            # Standalone bullet outside sections
+            html += f'<p class="itinerary-note">{processed}</p>'
+            continue
+
+        # Regular paragraph text
+        processed = process_inline_markdown(stripped)
+        if in_day_card:
+            html += f'<p class="day-note">{processed}</p>'
+        elif in_budget:
+            html += f'<li class="budget-item">{processed}</li>'
+        elif in_resources:
+            html += f'<div class="resource-card">{processed}</div>'
+        else:
+            html += f'<p class="itinerary-intro">{processed}</p>'
+
+    # Close any remaining open sections
+    close_open_sections()
+
+    # Add a note at the bottom
+    html += '<div class="itinerary-footer"><p class="itinerary-disclaimer">💡 Prices are estimates and may vary based on season, availability, and exchange rates.</p></div>'
+
+    return html
+
+
 def TravelPlanAction(request):
     if request.method == 'POST':
         # Ensure models are loaded
@@ -272,10 +457,18 @@ def TravelPlanAction(request):
         print(tt)
         if name.lower() not in loader.Y:
 
-            prompt = f"""Generate a trip plan for from {source} to {destination} with a budget of ${budget}.
-             We are interested in a mix of historical sightseeing, cultural experiences, travel websites, hotel booking platforms, tourist guides,
-             transportation schedules, weather forecasts and delicious food.
-             Provide a detailed itinerary for hotels and flights
+            prompt = f"""Generate a detailed trip plan from {source} to {destination} with a budget of ${budget}.
+We are interested in a mix of historical sightseeing, cultural experiences, travel websites, hotel booking platforms, tourist guides,
+transportation schedules, weather forecasts and delicious food.
+Provide a detailed day-by-day itinerary including hotels and flights.
+
+IMPORTANT FORMAT RULES:
+- Start each day with exactly: **Day N: Title**
+- Use bullet points (* ) for each activity, with cost in parentheses like (Cost: $XX-$YY)
+- Include a section starting with **Budget Breakdown:** with bullet points
+- Include sections for **Travel Websites and Resources:**, **Hotel Booking Platforms:**, **Tourist Guides:**, **Weather Forecast:**
+- Use markdown links like [text](url) for any website references
+- Keep the structure clean and consistent
             """
             plan = call_gemini(prompt)
             with open("ItineraryApp/static/model/"+source+"_"+destination+"_"+budget+".txt", "wb") as file:
@@ -306,25 +499,13 @@ def TravelPlanAction(request):
                 max_score = predict_score
                 plan_name = Y[i]
 
-        data = ""        
+        data = ""
         if not plan_name:
             data = "<p>No matching itinerary found. Please try again with different details.</p>"
         else:
             with open('ItineraryApp/static/model/'+plan_name, "r") as file:
-                for line in file:
-                    values = line.strip()
-                    if len(values) == 0:
-                        data += "<br/>"
-                    else:
-                        # Format headings with proper HTML tags
-                        if values.startswith('**') and values.endswith('**'):
-                            data += '<h3 style="margin-top:1rem;">' + values.strip('*') + '</h3>'
-                        elif values.startswith('# '):
-                            data += '<h3 style="margin-top:1rem;">' + values[2:] + '</h3>'
-                        elif values.startswith('## '):
-                            data += '<h4 style="margin-top:0.75rem;">' + values[3:] + '</h4>'
-                        else:
-                            data += '<p style="margin-bottom:0.25rem;">' + values + '</p>'
+                raw_text = file.read()
+            data = format_itinerary_html(raw_text, source, destination, budget)
 
         # Build images list for the gallery grid
         images = []
@@ -350,7 +531,8 @@ def TravelPlanAction(request):
             except Exception as e:
                 print(f"Error saving trip history: {e}")
 
-        context = {'data': data, 'images': images, 'username': username}
+        context = {'data': data, 'images': images, 'username': username,
+                   'trip_source': source, 'trip_destination': destination, 'trip_budget': budget}
         return render(request, 'UserScreen.html', context)
         
 def TravelPlan(request):

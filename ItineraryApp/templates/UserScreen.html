@@ -36,18 +36,21 @@
 
     {% if data %}
     <!-- Itinerary Results -->
-    <div class="card itinerary-card page-enter page-enter-delay-1">
-      <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-xl);">
-        <div class="card-icon" style="margin-bottom: 0;">📋</div>
-        <div>
-          <h3 style="margin-bottom: 0;">Your Travel Itinerary</h3>
-          <p class="text-muted" style="font-size: 0.85rem;">AI-generated personalized plan</p>
-        </div>
-      </div>
-
+    <div class="page-enter page-enter-delay-1">
       <div class="itinerary-content">
         {{ data|safe }}
       </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="page-enter page-enter-delay-2"
+      style="display: flex; gap: var(--space-md); justify-content: center; margin-top: var(--space-2xl); flex-wrap: wrap;">
+      <button onclick="window.print()" class="btn btn-secondary">
+        🖨️ Print Itinerary
+      </button>
+      <a href="{% url 'TravelPlan' %}" class="btn btn-primary">
+        ✨ Plan Another Trip
+      </a>
     </div>
 
     <!-- Destination Images -->
