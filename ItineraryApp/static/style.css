@@ -2154,3 +2154,264 @@ textarea.form-input {
     aspect-ratio: 16/10;
   }
 }
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+
+  /* Hide non-essential elements */
+  .navbar,
+  .footer,
+  .theme-toggle,
+  .mobile-menu-btn,
+  .dashboard-actions,
+  .btn,
+  .hero-orb,
+  .loading-overlay,
+  .dest-section,
+  .gallery-grid,
+  .itinerary-footer {
+    display: none !important;
+  }
+
+  /* Reset page */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+  }
+
+  .dashboard-page {
+    padding-top: 0 !important;
+    min-height: auto !important;
+    background: white !important;
+  }
+
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Dashboard header */
+  .dashboard-header {
+    margin-bottom: 16pt !important;
+    border-bottom: 2pt solid #333 !important;
+    padding-bottom: 8pt !important;
+  }
+
+  .dashboard-header h1 {
+    font-size: 18pt !important;
+    color: #1a1a1a !important;
+    -webkit-text-fill-color: #1a1a1a !important;
+  }
+
+  .text-gradient {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #1a1a1a !important;
+    background-clip: unset !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Trip Summary Banner — print friendly */
+  .trip-summary {
+    background: #f0f0f0 !important;
+    border: 2pt solid #333 !important;
+    border-radius: 8pt !important;
+    padding: 16pt !important;
+    margin-bottom: 16pt !important;
+    page-break-after: avoid !important;
+  }
+
+  .trip-summary::before {
+    display: none !important;
+  }
+
+  .trip-route {
+    color: #1a1a1a !important;
+    font-size: 14pt !important;
+  }
+
+  .trip-pill {
+    background: white !important;
+    color: #333 !important;
+    border: 1pt solid #999 !important;
+    padding: 2pt 8pt !important;
+    font-size: 9pt !important;
+  }
+
+  /* Day Cards */
+  .day-card {
+    border: 1pt solid #ccc !important;
+    border-radius: 6pt !important;
+    margin-bottom: 12pt !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .day-header {
+    background: #f5f5f5 !important;
+    border-bottom: 1pt solid #ddd !important;
+    padding: 8pt 12pt !important;
+  }
+
+  .day-badge {
+    background: #333 !important;
+    color: white !important;
+    box-shadow: none !important;
+    font-size: 8pt !important;
+    padding: 2pt 8pt !important;
+  }
+
+  .day-title {
+    font-size: 11pt !important;
+    color: #1a1a1a !important;
+  }
+
+  .day-body {
+    padding: 8pt 12pt !important;
+  }
+
+  /* Activity Items */
+  .activity-item {
+    padding: 4pt 0 !important;
+    gap: 8pt !important;
+  }
+
+  .activity-item:hover {
+    background: none !important;
+  }
+
+  .activity-icon {
+    width: 20pt !important;
+    height: 20pt !important;
+    font-size: 10pt !important;
+    background: none !important;
+    border: none !important;
+  }
+
+  .activity-text {
+    font-size: 9.5pt !important;
+    color: #333 !important;
+  }
+
+  /* Cost Tags */
+  .cost-tag {
+    background: none !important;
+    border: 1pt solid #999 !important;
+    color: #333 !important;
+    font-size: 8pt !important;
+    padding: 0 4pt !important;
+  }
+
+  /* Budget Card */
+  .budget-card {
+    border: 1pt solid #ccc !important;
+    border-radius: 6pt !important;
+    margin: 12pt 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .budget-header {
+    background: #f5f5f5 !important;
+    padding: 8pt 12pt !important;
+  }
+
+  .budget-header h3 {
+    font-size: 11pt !important;
+    color: #1a1a1a !important;
+  }
+
+  .budget-body {
+    padding: 8pt 12pt !important;
+  }
+
+  .budget-item {
+    font-size: 9.5pt !important;
+    padding: 4pt 0 !important;
+    color: #333 !important;
+    border-bottom-color: #eee !important;
+  }
+
+  /* Resources */
+  .resources-section {
+    margin: 12pt 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .resources-header h3 {
+    font-size: 11pt !important;
+    color: #1a1a1a !important;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6pt !important;
+  }
+
+  .resource-card {
+    background: #fafafa !important;
+    border: 1pt solid #ddd !important;
+    padding: 6pt 8pt !important;
+    font-size: 8.5pt !important;
+  }
+
+  .resource-link {
+    color: #333 !important;
+    text-decoration: underline !important;
+  }
+
+  /* Links — show URLs after text */
+  .resource-link::after {
+    content: " (" attr(href) ")";
+    font-size: 7pt;
+    color: #666;
+    font-weight: 400;
+  }
+
+  /* Section dividers */
+  .section-divider {
+    border-bottom-color: #ccc !important;
+    margin: 12pt 0 8pt !important;
+  }
+
+  .section-divider h3 {
+    font-size: 11pt !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Intro text */
+  .itinerary-intro,
+  .itinerary-note,
+  .day-note {
+    font-size: 9.5pt !important;
+    color: #333 !important;
+  }
+
+  .itinerary-note {
+    border-left-color: #999 !important;
+  }
+
+  /* Animations off */
+  .animate-on-scroll,
+  .page-enter,
+  .page-enter-delay-1,
+  .page-enter-delay-2,
+  .page-enter-delay-3,
+  .page-enter-delay-4 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
